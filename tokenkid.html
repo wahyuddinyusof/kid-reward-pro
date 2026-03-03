@@ -299,7 +299,10 @@ select.input option{background:#1a1826}
   </div>
 </div>
 <script>
-const PIN='2124',RATE=10;
+const RATE=10;
+const RESET_PIN='0000';
+function getPin(){return localStorage.getItem('krp_pin')||null;}
+function savePin(p){localStorage.setItem('krp_pin',p);}
 const COLORS=['linear-gradient(135deg,#2d1b69,#11998e)','linear-gradient(135deg,#b5157a,#7b2ff7)','linear-gradient(135deg,#c94b4b,#4b134f)','linear-gradient(135deg,#1a6b4a,#2c8c99)','linear-gradient(135deg,#7b4f00,#c97d00)','linear-gradient(135deg,#003d6b,#0077b6)'];
 const DEF_CHORES=[{id:1,name:'Basuh pinggan',emoji:'🍽️',tokens:20,category:'rumah'},{id:2,name:'Kemas bilik tidur',emoji:'🛏️',tokens:30,category:'rumah'},{id:3,name:'Sapu lantai',emoji:'🧹',tokens:20,category:'rumah'},{id:4,name:'Solat 5 waktu',emoji:'🕌',tokens:50,category:'ibadah'},{id:5,name:'Puasa penuh',emoji:'🌙',tokens:100,category:'ibadah'},{id:6,name:'Baca Al-Quran',emoji:'📖',tokens:40,category:'ibadah'},{id:7,name:'Lap meja makan',emoji:'🧽',tokens:15,category:'rumah'},{id:8,name:'Siram pokok',emoji:'🌱',tokens:15,category:'rumah'}];
 const DEF_PEN=[{id:1,name:'Tak solat',emoji:'⚠️',tokens:-30},{id:2,name:'Bergaduh dgn adik/abang',emoji:'😤',tokens:-20},{id:3,name:'Berbohong',emoji:'🤥',tokens:-40},{id:4,name:'Tak buat kerja sekolah',emoji:'📚',tokens:-25}];
@@ -314,13 +317,103 @@ function age(dob){if(!dob)return null;const b=new Date(dob),n=new Date();let a=n
 function fmtDate(iso){if(!iso)return'';return new Date(iso).toLocaleDateString('ms-MY',{day:'numeric',month:'long',year:'numeric'});}
 function gEmoji(g){return g==='P'?'👧':'👦';}
 
-let pinBuf='';
-function askPin(){pinBuf='';updDots();document.getElementById('pw-err').textContent='';document.getElementById('pw-overlay').style.display='flex';}
+// ── PIN LOGIC ─────────────────────────────────────────────
+let pinBuf='', setupBuf1='', setupBuf2='';
+
+function askPin(){
+  if(!getPin()){openSetup();return;}
+  pinBuf='';updDots();
+  document.getElementById('pw-err').textContent='';
+  document.getElementById('pw-overlay').style.display='flex';
+}
 function closePw(){document.getElementById('pw-overlay').style.display='none';}
-function pinKey(d){if(pinBuf.length>=4)return;pinBuf+=d;updDots();if(pinBuf.length===4){setTimeout(()=>{if(pinBuf===PIN){closePw();goParent();}else{document.getElementById('pw-err').textContent='PIN salah! Cuba lagi.';pinBuf='';updDots();}},200);}}
+function pinKey(d){
+  if(pinBuf.length>=4)return;
+  pinBuf+=d; updDots();
+  if(pinBuf.length===4){
+    setTimeout(()=>{
+      if(pinBuf===RESET_PIN){
+        // Emergency reset
+        closePw();
+        localStorage.removeItem('krp_pin');
+        toast('PIN direset! Sila tetapkan PIN baru.','warn');
+        setTimeout(()=>openSetup(),800);
+      } else if(pinBuf===getPin()){
+        closePw(); goParent();
+      } else {
+        document.getElementById('pw-err').textContent='PIN salah! Cuba lagi. (Guna 0000 untuk reset PIN)';
+        pinBuf=''; updDots();
+      }
+    },200);
+  }
+}
 function pinDel(){if(pinBuf.length>0){pinBuf=pinBuf.slice(0,-1);updDots();}}
 function updDots(){for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.toggle('on',i<pinBuf.length);}
-document.addEventListener('keydown',e=>{if(document.getElementById('pw-overlay').style.display!=='none'){if(e.key>='0'&&e.key<='9')pinKey(e.key);else if(e.key==='Backspace')pinDel();}});
+
+// ── SETUP PIN ─────────────────────────────────────────────
+function openSetup(){
+  setupBuf1=''; setupBuf2='';
+  updSetupDots1(); updSetupDots2();
+  document.getElementById('setup-step1').style.display='block';
+  document.getElementById('setup-step2').style.display='none';
+  document.getElementById('setup-err').textContent='';
+  document.getElementById('confirm-err').textContent='';
+  document.getElementById('setup-overlay').style.display='flex';
+}
+function setupKey(d){
+  if(setupBuf1.length>=4)return;
+  setupBuf1+=d; updSetupDots1();
+  if(setupBuf1.length===4){
+    if(setupBuf1===RESET_PIN){
+      document.getElementById('setup-err').textContent='PIN 0000 tidak dibenarkan (dikhaskan untuk reset).';
+      setupBuf1=''; updSetupDots1(); return;
+    }
+    setTimeout(()=>{
+      document.getElementById('setup-step1').style.display='none';
+      document.getElementById('setup-step2').style.display='block';
+    },200);
+  }
+}
+function setupDel(){if(setupBuf1.length>0){setupBuf1=setupBuf1.slice(0,-1);updSetupDots1();}}
+function updSetupDots1(){for(let i=0;i<4;i++)document.getElementById('sp'+i).classList.toggle('on',i<setupBuf1.length);}
+
+function confirmKey(d){
+  if(setupBuf2.length>=4)return;
+  setupBuf2+=d; updSetupDots2();
+  if(setupBuf2.length===4){
+    setTimeout(()=>{
+      if(setupBuf2===setupBuf1){
+        savePin(setupBuf1);
+        document.getElementById('setup-overlay').style.display='none';
+        toast('PIN berjaya ditetapkan! 🔐');
+        goParent();
+      } else {
+        document.getElementById('confirm-err').textContent='PIN tidak sepadan! Cuba lagi.';
+        setupBuf2=''; updSetupDots2();
+        setTimeout(()=>{
+          document.getElementById('setup-step2').style.display='none';
+          document.getElementById('setup-step1').style.display='block';
+          setupBuf1=''; updSetupDots1();
+        },800);
+      }
+    },200);
+  }
+}
+function confirmDel(){if(setupBuf2.length>0){setupBuf2=setupBuf2.slice(0,-1);updSetupDots2();}}
+function updSetupDots2(){for(let i=0;i<4;i++)document.getElementById('sc'+i).classList.toggle('on',i<setupBuf2.length);}
+
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('pw-overlay').style.display!=='none'){
+    if(e.key>='0'&&e.key<='9')pinKey(e.key);
+    else if(e.key==='Backspace')pinDel();
+  }
+});
+
+// ── AUTO SETUP on first load ──────────────────────────────
+if(!getPin()){
+  // Show setup after short delay so UI renders first
+  setTimeout(()=>openSetup(),500);
+}
 
 function goParent(){document.getElementById('view-parent').classList.add('active');document.getElementById('view-kids').classList.remove('active');document.getElementById('btn-parent').className='tab tab-a';document.getElementById('btn-kids').className='tab tab-i';renderGrid();renderParentTugasan();renderParentPenalti();updInfoCounts();}
 function goKids(){document.getElementById('view-kids').classList.add('active');document.getElementById('view-parent').classList.remove('active');document.getElementById('btn-kids').className='tab tab-a';document.getElementById('btn-parent').className='tab tab-i';renderKSel();}
@@ -352,7 +445,7 @@ function aTab(t){['chores','penalties','rewards','history'].forEach(x=>{document
 function askDel(){const k=kids.find(x=>x.id===selKid);if(!k)return;document.getElementById('del-msg').textContent='Profil "'+k.name+'" dan semua sejarah tokennya akan dipadam. Tindakan ini tidak boleh dibatalkan.';document.getElementById('del-overlay').style.display='flex';}
 function confirmDel(){const name=kids.find(x=>x.id===selKid)?.name||'';kids=kids.filter(x=>x.id!==selKid);selKid=null;saveAll();document.getElementById('del-overlay').style.display='none';document.getElementById('action-panel').style.display='none';renderGrid();toast('Profil '+name+' telah dipadam.');}
 
-function doReset(){['krp_kids','krp_chores','krp_pen'].forEach(k=>localStorage.removeItem(k));if('caches' in window){caches.keys().then(names=>names.forEach(n=>caches.delete(n)));}document.getElementById('reset-overlay').style.display='none';toast('Data berjaya dipadam! Memuatkan semula...','warn');setTimeout(()=>window.location.reload(true),1500);}
+function doReset(){['krp_kids','krp_chores','krp_pen','krp_pin'].forEach(k=>localStorage.removeItem(k));if('caches' in window){caches.keys().then(names=>names.forEach(n=>caches.delete(n)));}document.getElementById('reset-overlay').style.display='none';toast('Data berjaya dipadam! Memuatkan semula...','warn');setTimeout(()=>window.location.reload(true),1500);}
 function exportData(){const data={kids,chores,penalties,exported:new Date().toISOString(),version:'1.0'};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='kidrewardpro-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('Data berjaya dieksport! 💾');}
 function importData(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(!d.kids||!d.chores||!d.penalties)throw new Error();kids=d.kids;chores=d.chores;penalties=d.penalties;saveAll();renderGrid();renderParentTugasan();renderParentPenalti();updInfoCounts();toast('Data berjaya diimport! '+kids.length+' profil dipulihkan.');}catch{toast('Fail sandaran tidak sah atau rosak.','err');}};reader.readAsText(file);}
 function updInfoCounts(){document.getElementById('info-counts').innerHTML='Profil: <strong style="color:#fffffe">'+kids.length+'</strong> &nbsp;|&nbsp; Tugasan: <strong style="color:#fffffe">'+chores.length+'</strong> &nbsp;|&nbsp; Penalti: <strong style="color:#fffffe">'+penalties.length+'</strong>';}
