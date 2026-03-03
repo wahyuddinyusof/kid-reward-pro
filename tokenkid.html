@@ -6,18 +6,350 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Kid Reward Pro">
 <meta name="theme-color" content="#ff8906">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Kid Reward Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Nunito',sans-serif;min-height:100dvh;background:#0f0e17;color:#fffffe}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:#1a1a2e}::-webkit-scrollbar-thumb{background:#ff8906;border-radius:3px}
+.header{background:linear-gradient(135deg,#1a1826,#2d1b69);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);flex-wrap:wrap;gap:8px;position:sticky;top:0;z-index:50}
+.logo{font-family:'Baloo 2',cursive;font-size:19px;font-weight:800;color:#ff8906}.logo-sub{font-size:10px;color:rgba(255,255,255,.4)}
+.content{max-width:920px;margin:0 auto;padding:18px 14px}.content-sm{max-width:500px;margin:0 auto;padding:18px 14px}
+.card{background:#1a1826;border-radius:18px;padding:16px;border:1px solid rgba(255,255,255,.06);margin-bottom:16px}
+.btn{border:none;cursor:pointer;border-radius:12px;font-family:inherit;font-weight:700;transition:all .2s}.btn:hover{transform:translateY(-2px)}.btn:active{transform:scale(.97)}
+.btn-primary{background:#ff8906;color:#0f0e17;padding:10px 16px;font-size:14px}
+.btn-green{background:#2ec4b6;color:#0f0e17;padding:7px 12px;font-size:12px;font-family:inherit;font-weight:700;border-radius:10px;border:none;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-red{background:#e63946;color:white;padding:7px 12px;font-size:12px;font-family:inherit;font-weight:700;border-radius:10px;border:none;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-ghost{background:rgba(255,255,255,.08);color:#fffffe;padding:8px 14px;font-size:13px}
+.input{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fffffe;padding:9px 12px;font-family:inherit;font-size:14px;outline:none;width:100%}
+.input:focus{border-color:#ff8906}.input-label{font-size:11px;color:rgba(255,255,255,.5);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+select.input option{background:#1a1826}
+.tab{padding:7px 13px;border-radius:10px;cursor:pointer;font-weight:700;font-size:12px;transition:all .2s;border:none;font-family:inherit;white-space:nowrap}
+.tab-a{background:#ff8906;color:#0f0e17}.tab-i{background:transparent;color:rgba(255,255,255,.5)}.tab-i:hover{background:rgba(255,255,255,.08);color:#fffffe}
+.tab-content{display:none}.tab-content.active{display:block}.view-panel{display:none}.view-panel.active{display:block}
+.kids-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;margin-bottom:18px}
+.kid-card{border-radius:18px;padding:18px 14px;cursor:pointer;transition:all .3s;border:2px solid transparent;text-align:center}
+.kid-card:hover{transform:translateY(-4px)}.kid-card.selected{border-color:#ff8906;box-shadow:0 0 0 4px rgba(255,137,6,.15)}
+.avatar{border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;background:rgba(0,0,0,.25);border:3px solid rgba(255,255,255,.15);flex-shrink:0}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.chore-row{background:rgba(255,255,255,.04);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:9px;border:1px solid rgba(255,255,255,.06);transition:all .2s;margin-bottom:7px}
+.chore-row:hover{background:rgba(255,255,255,.08);border-color:rgba(255,137,6,.3)}
+.token-badge{background:linear-gradient(135deg,#ff8906,#f25f4c);border-radius:8px;padding:3px 8px;font-size:11px;font-weight:800;color:white;white-space:nowrap}
+.penalty-badge{background:linear-gradient(135deg,#e63946,#c1121f);border-radius:8px;padding:3px 8px;font-size:11px;font-weight:800;color:white;white-space:nowrap}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:500;padding:16px;backdrop-filter:blur(6px)}
+.modal{background:#1a1826;border-radius:22px;padding:26px;width:100%;border:1px solid rgba(255,255,255,.1);animation:popIn .35s cubic-bezier(.68,-.55,.265,1.55)}
+@keyframes popIn{0%{transform:scale(.5);opacity:0}100%{transform:scale(1);opacity:1}}
+.bounce-in{animation:popIn .35s cubic-bezier(.68,-.55,.265,1.55)}
+.toast{position:fixed;top:18px;right:14px;left:14px;max-width:340px;margin:0 auto;z-index:999;padding:11px 16px;border-radius:13px;font-weight:700;font-size:14px;box-shadow:0 8px 30px rgba(0,0,0,.4);display:none;text-align:center}
+.pin-dots{display:flex;gap:12px;justify-content:center;margin:14px 0}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25);transition:all .15s}
+.pin-dot.on{background:#ff8906;border-color:#ff8906;transform:scale(1.2)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:220px;margin:0 auto}
+.kbtn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:13px;font-size:18px;font-weight:800;color:#fffffe;cursor:pointer;font-family:inherit;transition:all .15s}
+.kbtn:hover{background:rgba(255,137,6,.2);border-color:#ff8906}.kbtn:active{transform:scale(.92)}
+.photo-zone{width:96px;height:96px;border-radius:50%;border:3px dashed rgba(255,137,6,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 10px;transition:all .2s;background:rgba(255,137,6,.05);overflow:hidden;position:relative}
+.photo-zone img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
+.photo-btns{display:flex;gap:8px;justify-content:center;margin-bottom:8px}
+.photo-btn{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:7px 13px;font-size:12px;font-weight:700;color:rgba(255,255,255,.8);cursor:pointer;font-family:inherit;transition:all .2s}
+.photo-btn:hover{background:rgba(255,137,6,.15);border-color:#ff8906;color:#ff8906}
+.history-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(255,255,255,.04);border-radius:10px;margin-bottom:5px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.section-title{font-family:'Baloo 2',cursive;font-weight:800;font-size:16px;margin-bottom:13px}
+.spinner{display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,.2);border-top-color:#ff8906;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
 </head>
 <body>
-<p>Loading...</p>
+<div class="toast" id="toast"></div>
+
+<!-- PIN MODAL -->
+<div class="overlay" id="pw-overlay" style="display:none">
+  <div class="modal" style="max-width:310px;text-align:center">
+    <div style="font-size:36px;margin-bottom:8px">🔐</div>
+    <div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800">Parent View</div>
+    <div style="color:rgba(255,255,255,.4);font-size:12px;margin-top:3px">Masukkan PIN untuk teruskan</div>
+    <div class="pin-dots"><div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div><div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div></div>
+    <div id="pw-err" style="color:#e63946;font-size:12px;font-weight:700;min-height:16px;margin-bottom:9px"></div>
+    <div class="keypad">
+      <button class="kbtn" onclick="pinKey('1')">1</button><button class="kbtn" onclick="pinKey('2')">2</button><button class="kbtn" onclick="pinKey('3')">3</button>
+      <button class="kbtn" onclick="pinKey('4')">4</button><button class="kbtn" onclick="pinKey('5')">5</button><button class="kbtn" onclick="pinKey('6')">6</button>
+      <button class="kbtn" onclick="pinKey('7')">7</button><button class="kbtn" onclick="pinKey('8')">8</button><button class="kbtn" onclick="pinKey('9')">9</button>
+      <button class="kbtn" onclick="pinDel()">⌫</button>
+      <button class="kbtn" onclick="pinKey('0')">0</button>
+      <button class="kbtn" onclick="closePw()" style="font-size:12px;color:rgba(255,255,255,.35)">✕</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD KID MODAL -->
+<div class="overlay" id="addkid-overlay" style="display:none">
+  <div class="modal" style="max-width:420px;max-height:92vh;overflow-y:auto">
+    <div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;margin-bottom:16px;text-align:center">👶 Tambah Profil Anak</div>
+    <div style="text-align:center;margin-bottom:14px">
+      <div class="photo-zone" id="photo-zone">
+        <div style="font-size:24px;position:relative;z-index:1">📷</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:3px;position:relative;z-index:1">Pilih gambar</div>
+      </div>
+      <div class="photo-btns">
+        <button class="photo-btn" onclick="document.getElementById('photo-camera').click()">📷 Kamera</button>
+        <button class="photo-btn" onclick="document.getElementById('photo-gallery').click()">🖼️ Galeri</button>
+      </div>
+      <input type="file" id="photo-camera" accept="image/*" capture="environment" style="display:none" onchange="onPhotoChange(event)">
+      <input type="file" id="photo-gallery" accept="image/*" style="display:none" onchange="onPhotoChange(event)">
+    </div>
+    <div style="margin-bottom:12px"><div class="input-label">Nama Anak</div><input class="input" id="nk-name" placeholder="cth: Ahmad Luqman" maxlength="30"></div>
+    <div style="margin-bottom:12px"><div class="input-label">Tarikh Lahir</div><input class="input" id="nk-dob" type="date"></div>
+    <div style="margin-bottom:18px">
+      <div class="input-label">Jantina</div>
+      <div class="row"><button class="tab tab-a" id="g-l" onclick="setGender('L')" style="flex:1">👦 Lelaki</button><button class="tab tab-i" id="g-p" onclick="setGender('P')" style="flex:1">👧 Perempuan</button></div>
+    </div>
+    <div class="row">
+      <button class="btn btn-primary" id="btn-save-kid" onclick="saveKid()" style="flex:1;padding:12px">✅ Simpan</button>
+      <button class="btn btn-ghost" onclick="closeAddKid()" style="padding:12px">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE KID -->
+<div class="overlay" id="del-overlay" style="display:none">
+  <div class="modal" style="max-width:310px;text-align:center">
+    <div style="font-size:40px;margin-bottom:10px">🗑️</div>
+    <div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;margin-bottom:8px">Padam Profil?</div>
+    <div id="del-msg" style="color:rgba(255,255,255,.5);font-size:13px;margin-bottom:20px;line-height:1.5"></div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-red" style="flex:1;padding:12px;font-size:14px" onclick="confirmDel()">Ya, Padam</button>
+      <button class="btn btn-ghost" style="flex:1;padding:12px" onclick="document.getElementById('del-overlay').style.display='none'">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESET MODAL -->
+<div class="overlay" id="reset-overlay" style="display:none">
+  <div class="modal" style="max-width:340px;text-align:center">
+    <div style="font-size:46px;margin-bottom:10px">⚠️</div>
+    <div style="font-family:'Baloo 2',cursive;font-size:20px;font-weight:800;margin-bottom:8px;color:#e63946">Reset Semua Data?</div>
+    <div style="color:rgba(255,255,255,.55);font-size:13px;margin-bottom:12px;line-height:1.6">
+      Semua data akan <strong style="color:#e63946">DIPADAM KEKAL</strong>:<br>
+      profil anak, token, sejarah, tugasan &amp; penalti.<br><br>
+      Gunakan ini jika data lama masih muncul selepas pasang semula app.
+    </div>
+    <div style="background:rgba(230,57,70,.1);border:1px solid rgba(230,57,70,.3);border-radius:12px;padding:11px;margin-bottom:18px;font-size:13px;color:#e63946;font-weight:700">
+      ⛔ Tindakan ini TIDAK boleh dibatalkan!
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-red" style="flex:1;padding:13px;font-size:14px;font-weight:800" onclick="doReset()">🗑️ Ya, Reset Sekarang</button>
+      <button class="btn btn-ghost" style="flex:1;padding:13px" onclick="document.getElementById('reset-overlay').style.display='none'">Batal</button>
+    </div>
+  </div>
+</div>
+<!-- HEADER -->
+<div class="header">
+  <div style="display:flex;align-items:center;gap:9px">
+    <span style="font-size:26px">🌟</span>
+    <div><div class="logo">Kid Reward Pro</div><div class="logo-sub">Sistem Token Anak-Anak</div></div>
+  </div>
+  <div style="display:flex;gap:6px">
+    <button class="tab tab-i" id="btn-parent" onclick="askPin()">👨‍👩‍👧 Parent</button>
+    <button class="tab tab-a" id="btn-kids" onclick="goKids()">🎮 Kids</button>
+  </div>
+</div>
+
+<!-- PARENT VIEW -->
+<div id="view-parent" class="view-panel">
+<div class="content">
+  <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px;border-bottom:1px solid rgba(255,255,255,.07);padding-bottom:13px">
+    <button class="tab tab-a"  id="ptab-anak"    onclick="pTab('anak')">👨‍👩‍👧 Anak-Anak</button>
+    <button class="tab tab-i"  id="ptab-tugasan" onclick="pTab('tugasan')">✅ Tugasan</button>
+    <button class="tab tab-i"  id="ptab-penalti" onclick="pTab('penalti')">⚠️ Penalti</button>
+    <button class="tab tab-i"  id="ptab-tetapan" onclick="pTab('tetapan')">⚙️ Tetapan</button>
+  </div>
+
+  <!-- TAB ANAK -->
+  <div id="ptab-content-anak" class="tab-content active">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">
+      <div class="section-title" style="margin:0">📊 Papan Token</div>
+      <button class="btn btn-ghost" onclick="openAddKid()" style="font-size:12px">+ Tambah Anak</button>
+    </div>
+    <div class="kids-grid" id="kids-grid"></div>
+    <div id="action-panel" style="display:none" class="card">
+      <div style="display:flex;align-items:center;gap:11px;margin-bottom:16px">
+        <div class="avatar" id="ap-av" style="width:52px;height:52px;font-size:25px"></div>
+        <div style="flex:1">
+          <div id="ap-name" style="font-weight:800;font-size:15px"></div>
+          <div id="ap-info" style="color:rgba(255,255,255,.4);font-size:11px;margin-top:1px"></div>
+          <div id="ap-tokens" style="color:#ffd700;font-weight:700;font-size:13px;margin-top:2px"></div>
+        </div>
+        <button class="btn-red" style="padding:6px 10px;font-size:11px;border-radius:9px" onclick="askDel()">🗑️ Padam</button>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px">
+        <button class="tab tab-a" id="at-chores"    onclick="aTab('chores')">✅ Tugasan</button>
+        <button class="tab tab-i" id="at-penalties" onclick="aTab('penalties')">⚠️ Penalti</button>
+        <button class="tab tab-i" id="at-rewards"   onclick="aTab('rewards')">🎁 Reward</button>
+        <button class="tab tab-i" id="at-history"   onclick="aTab('history')">📋 Sejarah</button>
+      </div>
+      <div id="atc-chores" class="tab-content active"><div id="chores-list"></div></div>
+      <div id="atc-penalties" class="tab-content"><div id="penalties-list"></div></div>
+      <div id="atc-rewards" class="tab-content">
+        <div class="card" style="background:rgba(255,137,6,.08);border-color:rgba(255,137,6,.2)">
+          <div style="font-weight:800;font-size:14px;margin-bottom:3px">📱 Screen Time</div>
+          <div style="color:rgba(255,255,255,.5);font-size:12px;margin-bottom:13px">10 token = 1 minit screen time</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px">
+            <button class="tab tab-a" id="rm-15" onclick="setMin(15)">15 min</button>
+            <button class="tab tab-i" id="rm-30" onclick="setMin(30)">30 min</button>
+            <button class="tab tab-i" id="rm-45" onclick="setMin(45)">45 min</button>
+            <button class="tab tab-i" id="rm-60" onclick="setMin(60)">60 min</button>
+            <input type="number" class="input" id="cust-min" value="15" min="5" max="120" style="width:70px" oninput="setMin(parseInt(this.value)||15)">
+          </div>
+          <div id="redeem-info" style="padding:10px;background:rgba(0,0,0,.3);border-radius:10px;font-size:13px;margin-bottom:12px"></div>
+          <button class="btn btn-primary" style="width:100%;padding:12px;font-size:14px" onclick="redeemST()">🎮 Tukar Screen Time</button>
+        </div>
+      </div>
+      <div id="atc-history" class="tab-content"><div id="history-list"></div></div>
+    </div>
+  </div>
+
+  <!-- TAB TUGASAN -->
+  <div id="ptab-content-tugasan" class="tab-content">
+    <div class="section-title">✅ Senarai Tugasan</div>
+    <div class="card" style="background:rgba(255,137,6,.05);border-color:rgba(255,137,6,.15);margin-bottom:14px">
+      <div style="font-weight:700;font-size:12px;margin-bottom:11px;color:#ff8906">+ Tambah Tugasan Baru</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap">
+        <input class="input" id="nc-name" placeholder="Nama tugasan..." style="flex:2;min-width:110px">
+        <input class="input" id="nc-emoji" value="⭐" style="width:56px">
+        <input type="number" class="input" id="nc-tok" value="20" style="width:70px" min="5" max="500">
+        <select class="input" id="nc-cat" style="width:110px">
+          <option>rumah</option><option>ibadah</option><option>sekolah</option><option>lain-lain</option>
+        </select>
+        <button class="btn btn-primary" onclick="addChore()" style="padding:9px 14px">+ Tambah</button>
+      </div>
+    </div>
+    <div id="ml-chores-parent"></div>
+  </div>
+
+  <!-- TAB PENALTI -->
+  <div id="ptab-content-penalti" class="tab-content">
+    <div class="section-title">⚠️ Senarai Penalti</div>
+    <div class="card" style="background:rgba(230,57,70,.05);border-color:rgba(230,57,70,.15);margin-bottom:14px">
+      <div style="font-weight:700;font-size:12px;margin-bottom:11px;color:#e63946">+ Tambah Penalti Baru</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap">
+        <input class="input" id="np-name" placeholder="Nama penalti..." style="flex:2;min-width:110px">
+        <input class="input" id="np-emoji" value="⚠️" style="width:56px">
+        <input type="number" class="input" id="np-tok" value="20" style="width:70px" min="5">
+        <button class="btn btn-red" onclick="addPenalty()" style="padding:9px 14px">+ Tambah</button>
+      </div>
+    </div>
+    <div id="ml-penalties-parent"></div>
+  </div>
+
+  <!-- TAB TETAPAN -->
+  <div id="ptab-content-tetapan" class="tab-content">
+    <div class="section-title">⚙️ Tetapan</div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-weight:700;font-size:13px;margin-bottom:12px;color:rgba(255,255,255,.6)">ℹ️ Maklumat App</div>
+      <div style="font-size:13px;color:rgba(255,255,255,.5);line-height:1.9">
+        <div>App: <strong style="color:#ff8906">Kid Reward Pro</strong></div>
+        <div>Kadar: <strong style="color:#fffffe">10 token = 1 minit screen time</strong></div>
+        <div>PIN Parent: <strong style="color:#fffffe">2124</strong></div>
+        <div id="info-counts"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-weight:700;font-size:13px;margin-bottom:6px;color:rgba(255,255,255,.6)">💾 Eksport Data</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:12px">Simpan semua data sebagai fail sandaran (.json)</div>
+      <button class="btn btn-ghost" style="width:100%;padding:11px;font-size:13px" onclick="exportData()">📥 Download Sandaran Data</button>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-weight:700;font-size:13px;margin-bottom:6px;color:rgba(255,255,255,.6)">📤 Import Data</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:12px">Pulihkan data dari fail sandaran</div>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+      <button class="btn btn-ghost" style="width:100%;padding:11px;font-size:13px" onclick="document.getElementById('import-file').click()">📂 Pilih Fail Sandaran</button>
+    </div>
+    <div class="card" style="border-color:rgba(230,57,70,.2);background:rgba(230,57,70,.04)">
+      <div style="font-weight:700;font-size:13px;margin-bottom:6px;color:#e63946">🗑️ Reset Semua Data</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.4);margin-bottom:12px;line-height:1.5">Padam semua profil, token, sejarah, tugasan dan penalti. Guna ini jika data lama masih muncul selepas pasang semula app.</div>
+      <button class="btn btn-red" style="width:100%;padding:12px;font-size:14px;font-weight:800" onclick="document.getElementById('reset-overlay').style.display='flex'">⚠️ Reset &amp; Bersihkan Semua Data</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- KIDS VIEW -->
+<div id="view-kids" class="view-panel active">
+  <div class="content-sm">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-family:'Baloo 2',cursive;font-size:22px;font-weight:800;color:#ff8906">Hi! Siapakah kamu? 👋</div>
+    </div>
+    <div id="k-selector"></div>
+    <div id="k-detail" style="display:none"></div>
+  </div>
+</div>
 <script>
-// placeholder - will be replaced
-console.log("placeholder");
+const PIN='2124',RATE=10;
+const COLORS=['linear-gradient(135deg,#2d1b69,#11998e)','linear-gradient(135deg,#b5157a,#7b2ff7)','linear-gradient(135deg,#c94b4b,#4b134f)','linear-gradient(135deg,#1a6b4a,#2c8c99)','linear-gradient(135deg,#7b4f00,#c97d00)','linear-gradient(135deg,#003d6b,#0077b6)'];
+const DEF_CHORES=[{id:1,name:'Basuh pinggan',emoji:'🍽️',tokens:20,category:'rumah'},{id:2,name:'Kemas bilik tidur',emoji:'🛏️',tokens:30,category:'rumah'},{id:3,name:'Sapu lantai',emoji:'🧹',tokens:20,category:'rumah'},{id:4,name:'Solat 5 waktu',emoji:'🕌',tokens:50,category:'ibadah'},{id:5,name:'Puasa penuh',emoji:'🌙',tokens:100,category:'ibadah'},{id:6,name:'Baca Al-Quran',emoji:'📖',tokens:40,category:'ibadah'},{id:7,name:'Lap meja makan',emoji:'🧽',tokens:15,category:'rumah'},{id:8,name:'Siram pokok',emoji:'🌱',tokens:15,category:'rumah'}];
+const DEF_PEN=[{id:1,name:'Tak solat',emoji:'⚠️',tokens:-30},{id:2,name:'Bergaduh dgn adik/abang',emoji:'😤',tokens:-20},{id:3,name:'Berbohong',emoji:'🤥',tokens:-40},{id:4,name:'Tak buat kerja sekolah',emoji:'📚',tokens:-25}];
+function ld(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}}
+function sv(k,v){localStorage.setItem(k,JSON.stringify(v));}
+let kids=ld('krp_kids',[]),chores=ld('krp_chores',DEF_CHORES),penalties=ld('krp_pen',DEF_PEN);
+function saveAll(){sv('krp_kids',kids);sv('krp_chores',chores);sv('krp_pen',penalties);}
+let selKid=null,redeemMin=15,nkGender='L',nkPhoto=null;
+
+function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.style.background=type==='err'?'#e63946':type==='warn'?'#ff8906':'#2ec4b6';t.style.color=type==='warn'?'#0f0e17':'white';t.style.display='block';t.style.animation='none';void t.offsetHeight;t.style.animation='popIn .4s cubic-bezier(.68,-.55,.265,1.55)';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',2800);}
+function age(dob){if(!dob)return null;const b=new Date(dob),n=new Date();let a=n.getFullYear()-b.getFullYear();if(n<new Date(n.getFullYear(),b.getMonth(),b.getDate()))a--;return a;}
+function fmtDate(iso){if(!iso)return'';return new Date(iso).toLocaleDateString('ms-MY',{day:'numeric',month:'long',year:'numeric'});}
+function gEmoji(g){return g==='P'?'👧':'👦';}
+
+let pinBuf='';
+function askPin(){pinBuf='';updDots();document.getElementById('pw-err').textContent='';document.getElementById('pw-overlay').style.display='flex';}
+function closePw(){document.getElementById('pw-overlay').style.display='none';}
+function pinKey(d){if(pinBuf.length>=4)return;pinBuf+=d;updDots();if(pinBuf.length===4){setTimeout(()=>{if(pinBuf===PIN){closePw();goParent();}else{document.getElementById('pw-err').textContent='PIN salah! Cuba lagi.';pinBuf='';updDots();}},200);}}
+function pinDel(){if(pinBuf.length>0){pinBuf=pinBuf.slice(0,-1);updDots();}}
+function updDots(){for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.toggle('on',i<pinBuf.length);}
+document.addEventListener('keydown',e=>{if(document.getElementById('pw-overlay').style.display!=='none'){if(e.key>='0'&&e.key<='9')pinKey(e.key);else if(e.key==='Backspace')pinDel();}});
+
+function goParent(){document.getElementById('view-parent').classList.add('active');document.getElementById('view-kids').classList.remove('active');document.getElementById('btn-parent').className='tab tab-a';document.getElementById('btn-kids').className='tab tab-i';renderGrid();renderParentTugasan();renderParentPenalti();updInfoCounts();}
+function goKids(){document.getElementById('view-kids').classList.add('active');document.getElementById('view-parent').classList.remove('active');document.getElementById('btn-kids').className='tab tab-a';document.getElementById('btn-parent').className='tab tab-i';renderKSel();}
+function pTab(t){['anak','tugasan','penalti','tetapan'].forEach(x=>{document.getElementById('ptab-'+x).className='tab '+(x===t?'tab-a':'tab-i');document.getElementById('ptab-content-'+x).className='tab-content'+(x===t?' active':'');});if(t==='tetapan')updInfoCounts();}
+
+function openAddKid(){nkGender='L';nkPhoto=null;document.getElementById('nk-name').value='';document.getElementById('nk-dob').value='';document.getElementById('photo-camera').value='';document.getElementById('photo-gallery').value='';document.getElementById('photo-zone').innerHTML='<div style="font-size:24px;position:relative;z-index:1">📷</div><div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:3px;position:relative;z-index:1">Pilih gambar</div>';setGender('L');const btn=document.getElementById('btn-save-kid');btn.disabled=false;btn.innerHTML='✅ Simpan';document.getElementById('addkid-overlay').style.display='flex';}
+function closeAddKid(){document.getElementById('addkid-overlay').style.display='none';}
+function setGender(g){nkGender=g;document.getElementById('g-l').className='tab '+(g==='L'?'tab-a':'tab-i');document.getElementById('g-p').className='tab '+(g==='P'?'tab-a':'tab-i');}
+function onPhotoChange(e){const file=e.target.files[0];if(!file)return;document.getElementById('photo-zone').innerHTML='<div style="font-size:20px;position:relative;z-index:1"><span class="spinner"></span></div><div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:3px;position:relative;z-index:1">Memuatkan...</div>';document.getElementById('btn-save-kid').disabled=true;const reader=new FileReader();reader.onload=ev=>{nkPhoto=ev.target.result;document.getElementById('photo-zone').innerHTML='<img src="'+nkPhoto+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%">';document.getElementById('btn-save-kid').disabled=false;document.getElementById('btn-save-kid').innerHTML='✅ Simpan';toast('Gambar berjaya dimuatkan!','warn');};reader.onerror=()=>{nkPhoto=null;document.getElementById('photo-zone').innerHTML='<div style="font-size:24px;position:relative;z-index:1">❌</div><div style="font-size:10px;color:#e63946;margin-top:3px;position:relative;z-index:1">Gagal. Cuba lagi.</div>';document.getElementById('btn-save-kid').disabled=false;toast('Gagal muatkan gambar.','err');};reader.readAsDataURL(file);}
+function saveKid(){const name=document.getElementById('nk-name').value.trim();if(!name){toast('Sila masukkan nama anak','err');return;}if(document.getElementById('btn-save-kid').disabled){toast('Sila tunggu gambar dimuatkan...','warn');return;}kids.push({id:Date.now(),name,dob:document.getElementById('nk-dob').value,gender:nkGender,photo:nkPhoto,tokens:0,screenTime:0,history:[]});saveAll();closeAddKid();renderGrid();toast('Profil '+name+' berjaya dicipta! 🎉');}
+
+function renderGrid(){const g=document.getElementById('kids-grid');if(!kids.length){g.innerHTML='<div style="color:rgba(255,255,255,.3);padding:20px;text-align:center;grid-column:1/-1">Belum ada anak. Tekan &quot;+ Tambah Anak&quot;</div>';return;}g.innerHTML=kids.map((k,i)=>{const av=k.photo?'<div class="avatar" style="width:72px;height:72px;margin:0 auto 10px"><img src="'+k.photo+'" alt="'+k.name+'"></div>':'<div class="avatar" style="width:72px;height:72px;font-size:30px;margin:0 auto 10px">'+gEmoji(k.gender||'L')+'</div>';return '<div class="kid-card '+(selKid===k.id?'selected':'')+'" style="background:'+COLORS[i%COLORS.length]+'" onclick="selKidFn('+k.id+')">'+av+'<div style="font-weight:800;font-size:15px">'+k.name+'</div>'+(age(k.dob)!==null?'<div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:1px">'+age(k.dob)+' tahun</div>':'')+'<div style="font-size:22px;font-weight:900;color:#ffd700;margin:8px 0">⭐ '+k.tokens+'</div><div style="font-size:10px;color:rgba(255,255,255,.4)">token terkumpul</div>'+(k.screenTime>0?'<div style="margin-top:6px;background:rgba(0,0,0,.3);border-radius:8px;padding:3px 8px;font-size:10px">📱 '+k.screenTime+' min</div>':'')+'</div>';}).join('');}
+function selKidFn(id){selKid=selKid===id?null:id;renderGrid();const p=document.getElementById('action-panel');if(!selKid){p.style.display='none';return;}p.style.display='block';updateAP();}
+function updateAP(){const k=kids.find(x=>x.id===selKid);if(!k)return;const av=document.getElementById('ap-av');av.innerHTML=k.photo?'<img src="'+k.photo+'" style="width:100%;height:100%;object-fit:cover">':gEmoji(k.gender||'L');document.getElementById('ap-name').textContent=k.name;const a=age(k.dob);document.getElementById('ap-info').textContent=[a!==null?a+' tahun':'',k.dob?fmtDate(k.dob):''].filter(Boolean).join(' • ');document.getElementById('ap-tokens').textContent='⭐ '+k.tokens+' token';renderCL();renderPL();renderHL();updRI();}
+function renderCL(){document.getElementById('chores-list').innerHTML=chores.map(c=>'<div class="chore-row"><span style="font-size:19px">'+c.emoji+'</span><div style="flex:1"><div style="font-weight:700;font-size:12px">'+c.name+'</div><div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase">'+c.category+'</div></div><span class="token-badge">+'+c.tokens+' ⭐</span><button class="btn-green" onclick="give('+selKid+','+c.tokens+',\''+c.name.replace(/'/g,"\\'")+'\')">Beri</button></div>').join('');}
+function renderPL(){document.getElementById('penalties-list').innerHTML=penalties.map(p=>'<div class="chore-row"><span style="font-size:19px">'+p.emoji+'</span><div style="flex:1"><div style="font-weight:700;font-size:12px">'+p.name+'</div></div><span class="penalty-badge">'+p.tokens+' ⭐</span><button class="btn-red" onclick="give('+selKid+','+p.tokens+',\''+p.name.replace(/'/g,"\\'")+'\')">Tolak</button></div>').join('');}
+function renderParentTugasan(){document.getElementById('ml-chores-parent').innerHTML=chores.map(c=>'<div class="chore-row"><span style="font-size:19px">'+c.emoji+'</span><div style="flex:1"><div style="font-weight:700;font-size:12px">'+c.name+'</div><div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase">'+c.category+'</div></div><span class="token-badge">+'+c.tokens+' ⭐</span><button class="btn-red" style="padding:5px 9px;font-size:11px" onclick="delChore('+c.id+')">🗑️</button></div>').join('');}
+function renderParentPenalti(){document.getElementById('ml-penalties-parent').innerHTML=penalties.map(p=>'<div class="chore-row"><span style="font-size:19px">'+p.emoji+'</span><div style="flex:1"><div style="font-weight:700;font-size:12px">'+p.name+'</div></div><span class="penalty-badge">'+p.tokens+' ⭐</span><button class="btn-red" style="padding:5px 9px;font-size:11px" onclick="delPen('+p.id+')">🗑️</button></div>').join('');}
+function delChore(id){chores=chores.filter(c=>c.id!==id);saveAll();renderParentTugasan();if(selKid)renderCL();toast('Tugasan dipadam.');}
+function delPen(id){penalties=penalties.filter(p=>p.id!==id);saveAll();renderParentPenalti();if(selKid)renderPL();toast('Penalti dipadam.');}
+function addChore(){const n=document.getElementById('nc-name').value.trim();if(!n){toast('Masukkan nama tugasan','err');return;}chores.push({id:Date.now(),name:n,emoji:document.getElementById('nc-emoji').value||'⭐',tokens:parseInt(document.getElementById('nc-tok').value)||20,category:document.getElementById('nc-cat').value});document.getElementById('nc-name').value='';saveAll();renderParentTugasan();if(selKid)renderCL();toast('Tugasan ditambah! ✅');}
+function addPenalty(){const n=document.getElementById('np-name').value.trim();if(!n){toast('Masukkan nama penalti','err');return;}penalties.push({id:Date.now(),name:n,emoji:document.getElementById('np-emoji').value||'⚠️',tokens:-Math.abs(parseInt(document.getElementById('np-tok').value)||20)});document.getElementById('np-name').value='';saveAll();renderParentPenalti();if(selKid)renderPL();toast('Penalti ditambah!');}
+function give(id,amt,label){kids=kids.map(k=>k.id!==id?k:{...k,tokens:Math.max(0,k.tokens+amt),history:[{date:new Date().toLocaleDateString('ms-MY'),label,amount:amt},...k.history].slice(0,30)});saveAll();renderGrid();updateAP();const k=kids.find(k=>k.id===id);toast(amt>0?'+'+amt+' token untuk '+k?.name+'! 🎉':amt+' token ditolak');}
+function renderHL(){const k=kids.find(x=>x.id===selKid);const el=document.getElementById('history-list');if(!k||!k.history.length){el.innerHTML='<div style="text-align:center;color:rgba(255,255,255,.3);padding:24px">Tiada sejarah lagi</div>';return;}el.innerHTML=k.history.map(h=>'<div class="history-row"><div><div style="font-size:12px;font-weight:600">'+h.label+'</div><div style="font-size:10px;color:rgba(255,255,255,.3)">'+h.date+'</div></div><div style="font-weight:800;color:'+(h.amount>0?'#2ec4b6':'#e63946')+';font-size:13px">'+(h.amount>0?'+':'')+h.amount+' ⭐</div></div>').join('');}
+function setMin(m){redeemMin=m||15;document.getElementById('cust-min').value=redeemMin;[15,30,45,60].forEach(v=>{const e=document.getElementById('rm-'+v);if(e)e.className='tab '+(v===redeemMin?'tab-a':'tab-i');});updRI();}
+function updRI(){document.getElementById('redeem-info').innerHTML='Kos: <strong style="color:#ffd700">'+redeemMin*RATE+' token</strong> untuk <strong style="color:#2ec4b6">'+redeemMin+' minit</strong> screen time';}
+function redeemST(){const k=kids.find(x=>x.id===selKid);if(!k)return;const cost=redeemMin*RATE;if(k.tokens<cost){toast('Token tak cukup! Perlu '+cost+' token','err');return;}kids=kids.map(x=>x.id===selKid?{...x,screenTime:x.screenTime+redeemMin}:x);give(selKid,-cost,'Tukar Screen Time ('+redeemMin+' min)');toast(redeemMin+' minit screen time berjaya ditukar! 📱');}
+function aTab(t){['chores','penalties','rewards','history'].forEach(x=>{document.getElementById('at-'+x).className='tab '+(x===t?'tab-a':'tab-i');document.getElementById('atc-'+x).className='tab-content'+(x===t?' active':'');});}
+function askDel(){const k=kids.find(x=>x.id===selKid);if(!k)return;document.getElementById('del-msg').textContent='Profil "'+k.name+'" dan semua sejarah tokennya akan dipadam. Tindakan ini tidak boleh dibatalkan.';document.getElementById('del-overlay').style.display='flex';}
+function confirmDel(){const name=kids.find(x=>x.id===selKid)?.name||'';kids=kids.filter(x=>x.id!==selKid);selKid=null;saveAll();document.getElementById('del-overlay').style.display='none';document.getElementById('action-panel').style.display='none';renderGrid();toast('Profil '+name+' telah dipadam.');}
+
+function doReset(){['krp_kids','krp_chores','krp_pen'].forEach(k=>localStorage.removeItem(k));if('caches' in window){caches.keys().then(names=>names.forEach(n=>caches.delete(n)));}document.getElementById('reset-overlay').style.display='none';toast('Data berjaya dipadam! Memuatkan semula...','warn');setTimeout(()=>window.location.reload(true),1500);}
+function exportData(){const data={kids,chores,penalties,exported:new Date().toISOString(),version:'1.0'};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='kidrewardpro-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();toast('Data berjaya dieksport! 💾');}
+function importData(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(!d.kids||!d.chores||!d.penalties)throw new Error();kids=d.kids;chores=d.chores;penalties=d.penalties;saveAll();renderGrid();renderParentTugasan();renderParentPenalti();updInfoCounts();toast('Data berjaya diimport! '+kids.length+' profil dipulihkan.');}catch{toast('Fail sandaran tidak sah atau rosak.','err');}};reader.readAsText(file);}
+function updInfoCounts(){document.getElementById('info-counts').innerHTML='Profil: <strong style="color:#fffffe">'+kids.length+'</strong> &nbsp;|&nbsp; Tugasan: <strong style="color:#fffffe">'+chores.length+'</strong> &nbsp;|&nbsp; Penalti: <strong style="color:#fffffe">'+penalties.length+'</strong>';}
+
+function renderKSel(){document.getElementById('k-detail').style.display='none';const sel=document.getElementById('k-selector');sel.style.display='block';if(!kids.length){sel.innerHTML='<div style="text-align:center;color:rgba(255,255,255,.4);padding:40px">Tiada profil anak.<br>Minta ibu/ayah tambahkan dulu.</div>';return;}sel.innerHTML=kids.map((k,i)=>{const avi=k.photo?'<img src="'+k.photo+'" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.2)">':'<span style="font-size:38px">'+gEmoji(k.gender||'L')+'</span>';const a=age(k.dob);return '<div onclick="showKD('+k.id+')" style="background:'+COLORS[i%COLORS.length]+';border-radius:18px;padding:15px 18px;cursor:pointer;margin-bottom:12px;display:flex;align-items:center;gap:14px;border:2px solid transparent;transition:all .2s" onmouseover="this.style.transform=\'translateY(-4px)\'" onmouseout="this.style.transform=\'\'"><div style="width:60px;height:60px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(0,0,0,.2)">'+avi+'</div><div style="flex:1"><div style="font-weight:800;font-size:18px">'+k.name+'</div>'+(a!==null?'<div style="font-size:12px;color:rgba(255,255,255,.6)">'+a+' tahun</div>':'')+'<div style="color:#ffd700;font-weight:700;font-size:19px;margin-top:2px">⭐ '+k.tokens+'</div></div>'+(k.screenTime>0?'<div style="background:rgba(0,0,0,.3);border-radius:9px;padding:5px 10px;text-align:center"><div style="font-size:15px">📱</div><div style="font-size:10px;font-weight:700">'+k.screenTime+' min</div></div>':'')+'</div>';}).join('');}
+function showKD(id){const k=kids.find(x=>x.id===id);if(!k)return;const a=age(k.dob);const smx=Math.floor(k.tokens/RATE);const avi=k.photo?'<img src="'+k.photo+'" style="width:100%;height:100%;object-fit:cover">':'<span style="font-size:46px">'+gEmoji(k.gender||'L')+'</span>';document.getElementById('k-selector').style.display='none';const d=document.getElementById('k-detail');d.style.display='block';d.className='bounce-in';d.innerHTML='<div class="card" style="text-align:center;background:linear-gradient(135deg,#2d1b69,#1a1826)"><div style="width:86px;height:86px;border-radius:50%;margin:0 auto 10px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.3);border:3px solid rgba(255,255,255,.15)">'+avi+'</div><div style="font-family:\'Baloo 2\',cursive;font-size:20px;font-weight:800">Hai, '+k.name+'!</div>'+(a!==null?'<div style="color:rgba(255,255,255,.5);font-size:12px;margin-top:2px">'+a+' tahun'+(k.dob?' • '+fmtDate(k.dob):'')+'</div>':'')+'<div style="font-size:38px;font-weight:900;color:#ffd700;margin:12px 0">⭐ '+k.tokens+'</div><div style="color:rgba(255,255,255,.5);font-size:13px">token kamu sekarang</div><div style="margin-top:13px;background:rgba(255,137,6,.1);border-radius:11px;padding:11px"><div style="color:#ff8906;font-weight:700;font-size:13px">📱 Boleh tukar '+smx+' minit screen time</div></div></div><div class="card"><div style="font-weight:800;font-size:14px;margin-bottom:12px;color:#2ec4b6">✅ Buat ini untuk dapat token!</div>'+chores.map(c=>'<div class="chore-row"><span style="font-size:19px">'+c.emoji+'</span><span style="flex:1;font-size:12px;font-weight:600">'+c.name+'</span><span class="token-badge">+'+c.tokens+' ⭐</span></div>').join('')+'</div><div class="card" style="background:rgba(230,57,70,.05);border-color:rgba(230,57,70,.15)"><div style="font-weight:800;font-size:14px;margin-bottom:12px;color:#e63946">⚠️ Jangan buat ini!</div>'+penalties.map(p=>'<div class="chore-row"><span style="font-size:19px">'+p.emoji+'</span><span style="flex:1;font-size:12px;font-weight:600">'+p.name+'</span><span class="penalty-badge">'+p.tokens+' ⭐</span></div>').join('')+'</div><div style="text-align:center;margin-bottom:20px"><button class="btn btn-ghost" onclick="backKSel()">← Balik</button></div>';}
+function backKSel(){document.getElementById('k-detail').style.display='none';document.getElementById('k-selector').style.display='block';renderKSel();}
+
+renderGrid();renderParentTugasan();renderParentPenalti();updRI();renderKSel();updInfoCounts();
 </script>
 </body>
 </html>
