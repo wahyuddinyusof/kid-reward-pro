@@ -65,21 +65,33 @@ select.input option{background:#1a1826}
 <body>
 <div class="toast" id="toast"></div>
 
-<!-- PIN MODAL -->
-<div class="overlay" id="pw-overlay" style="display:none">
-  <div class="modal" style="max-width:310px;text-align:center">
-    <div style="font-size:36px;margin-bottom:8px">🔐</div>
-    <div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800">Parent View</div>
-    <div style="color:rgba(255,255,255,.4);font-size:12px;margin-top:3px">Masukkan PIN untuk teruskan</div>
-    <div class="pin-dots"><div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div><div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div></div>
-    <div id="pw-err" style="color:#e63946;font-size:12px;font-weight:700;min-height:16px;margin-bottom:9px"></div>
-    <div class="keypad">
-      <button class="kbtn" onclick="pinKey('1')">1</button><button class="kbtn" onclick="pinKey('2')">2</button><button class="kbtn" onclick="pinKey('3')">3</button>
-      <button class="kbtn" onclick="pinKey('4')">4</button><button class="kbtn" onclick="pinKey('5')">5</button><button class="kbtn" onclick="pinKey('6')">6</button>
-      <button class="kbtn" onclick="pinKey('7')">7</button><button class="kbtn" onclick="pinKey('8')">8</button><button class="kbtn" onclick="pinKey('9')">9</button>
-      <button class="kbtn" onclick="pinDel()">⌫</button>
-      <button class="kbtn" onclick="pinKey('0')">0</button>
-      <button class="kbtn" onclick="closePw()" style="font-size:12px;color:rgba(255,255,255,.35)">✕</button>
+<!-- SETUP PIN MODAL -->
+<div class="overlay" id="setup-overlay" style="display:none">
+  <div class="modal" style="max-width:340px;text-align:center">
+    <div style="font-size:44px;margin-bottom:10px">🔐</div>
+    <div style="font-family:'Baloo 2',cursive;font-size:20px;font-weight:800;margin-bottom:6px">Selamat Datang!</div>
+    <div style="color:rgba(255,255,255,.55);font-size:13px;margin-bottom:20px;line-height:1.6">Sila tetapkan <strong style="color:#ff8906">PIN rahsia</strong> untuk Parent View.<br>PIN ini melindungi data anak-anak anda.</div>
+    <div id="setup-step1">
+      <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:10px;font-weight:700">MASUKKAN PIN BARU (4 DIGIT)</div>
+      <div class="pin-dots"><div class="pin-dot" id="sp0"></div><div class="pin-dot" id="sp1"></div><div class="pin-dot" id="sp2"></div><div class="pin-dot" id="sp3"></div></div>
+      <div id="setup-err" style="color:#e63946;font-size:12px;font-weight:700;min-height:16px;margin-bottom:9px"></div>
+      <div class="keypad">
+        <button class="kbtn" onclick="setupKey('1')">1</button><button class="kbtn" onclick="setupKey('2')">2</button><button class="kbtn" onclick="setupKey('3')">3</button>
+        <button class="kbtn" onclick="setupKey('4')">4</button><button class="kbtn" onclick="setupKey('5')">5</button><button class="kbtn" onclick="setupKey('6')">6</button>
+        <button class="kbtn" onclick="setupKey('7')">7</button><button class="kbtn" onclick="setupKey('8')">8</button><button class="kbtn" onclick="setupKey('9')">9</button>
+        <button class="kbtn" onclick="setupDel()">⌫</button><button class="kbtn" onclick="setupKey('0')">0</button><div></div>
+      </div>
+    </div>
+    <div id="setup-step2" style="display:none">
+      <div style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:10px;font-weight:700">SAHKAN PIN SEKALI LAGI</div>
+      <div class="pin-dots"><div class="pin-dot" id="sc0"></div><div class="pin-dot" id="sc1"></div><div class="pin-dot" id="sc2"></div><div class="pin-dot" id="sc3"></div></div>
+      <div id="confirm-err" style="color:#e63946;font-size:12px;font-weight:700;min-height:16px;margin-bottom:9px"></div>
+      <div class="keypad">
+        <button class="kbtn" onclick="confirmKey('1')">1</button><button class="kbtn" onclick="confirmKey('2')">2</button><button class="kbtn" onclick="confirmKey('3')">3</button>
+        <button class="kbtn" onclick="confirmKey('4')">4</button><button class="kbtn" onclick="confirmKey('5')">5</button><button class="kbtn" onclick="confirmKey('6')">6</button>
+        <button class="kbtn" onclick="confirmKey('7')">7</button><button class="kbtn" onclick="confirmKey('8')">8</button><button class="kbtn" onclick="confirmKey('9')">9</button>
+        <button class="kbtn" onclick="confirmDel()">⌫</button><button class="kbtn" onclick="confirmKey('0')">0</button><div></div>
+      </div>
     </div>
   </div>
 </div>
