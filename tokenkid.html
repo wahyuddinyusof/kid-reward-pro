@@ -29,7 +29,8 @@ body{font-family:'Nunito',sans-serif;min-height:100dvh;background:#0f0e17;color:
 select.input option{background:#1a1826}
 .tab{padding:7px 13px;border-radius:10px;cursor:pointer;font-weight:700;font-size:12px;transition:all .2s;border:none;font-family:inherit;white-space:nowrap}
 .tab-a{background:#ff8906;color:#0f0e17}.tab-i{background:transparent;color:rgba(255,255,255,.5)}.tab-i:hover{background:rgba(255,255,255,.08);color:#fffffe}
-.tab-content{display:none}.tab-content.active{display:block}.view-panel{display:none}.view-panel.active{display:block}
+.tab-content{display:none}.tab-content.active{display:block}.view-panel { display: none !important; }
+.view-panel.active { display: block !important; }
 .kids-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:12px;margin-bottom:18px}
 .kid-card{border-radius:18px;padding:18px 14px;cursor:pointer;transition:all .3s;border:2px solid transparent;text-align:center}
 .kid-card:hover{transform:translateY(-4px)}.kid-card.selected{border-color:#ff8906;box-shadow:0 0 0 4px rgba(255,137,6,.15)}
@@ -415,8 +416,24 @@ if(!getPin()){
   setTimeout(()=>openSetup(),500);
 }
 
-function goParent(){document.getElementById('view-parent').classList.add('active');document.getElementById('view-kids').classList.remove('active');document.getElementById('btn-parent').className='tab tab-a';document.getElementById('btn-kids').className='tab tab-i';renderGrid();renderParentTugasan();renderParentPenalti();updInfoCounts();}
-function goKids(){document.getElementById('view-kids').classList.add('active');document.getElementById('view-parent').classList.remove('active');document.getElementById('btn-kids').className='tab tab-a';document.getElementById('btn-parent').className='tab tab-i';renderKSel();}
+function goParent(){
+  document.getElementById('view-parent').classList.add('active');
+  document.getElementById('view-kids').classList.remove('active');
+  document.getElementById('view-parent').style.display='block';
+  document.getElementById('view-kids').style.display='none';
+  document.getElementById('btn-parent').className='tab tab-a';
+  document.getElementById('btn-kids').className='tab tab-i';
+  renderGrid();renderParentTugasan();renderParentPenalti();updInfoCounts();
+}
+function goKids(){
+  document.getElementById('view-kids').classList.add('active');
+  document.getElementById('view-parent').classList.remove('active');
+  document.getElementById('view-kids').style.display='block';
+  document.getElementById('view-parent').style.display='none';
+  document.getElementById('btn-kids').className='tab tab-a';
+  document.getElementById('btn-parent').className='tab tab-i';
+  renderKSel();
+}
 function pTab(t){['anak','tugasan','penalti','tetapan'].forEach(x=>{document.getElementById('ptab-'+x).className='tab '+(x===t?'tab-a':'tab-i');document.getElementById('ptab-content-'+x).className='tab-content'+(x===t?' active':'');});if(t==='tetapan')updInfoCounts();}
 
 function openAddKid(){nkGender='L';nkPhoto=null;document.getElementById('nk-name').value='';document.getElementById('nk-dob').value='';document.getElementById('photo-camera').value='';document.getElementById('photo-gallery').value='';document.getElementById('photo-zone').innerHTML='<div style="font-size:24px;position:relative;z-index:1">📷</div><div style="font-size:10px;color:rgba(255,255,255,.4);margin-top:3px;position:relative;z-index:1">Pilih gambar</div>';setGender('L');const btn=document.getElementById('btn-save-kid');btn.disabled=false;btn.innerHTML='✅ Simpan';document.getElementById('addkid-overlay').style.display='flex';}
