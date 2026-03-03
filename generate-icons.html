@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head><title>Icon Generator - Kid Reward Pro</title></head>
+<body style="background:#111;color:white;font-family:sans-serif;padding:20px;text-align:center">
+<h2>🎨 Kid Reward Pro — Icon Generator</h2>
+<p style="color:#aaa">Klik butang untuk jana dan download icon PNG</p>
+<br>
+<canvas id="c192" width="192" height="192" style="display:none"></canvas>
+<canvas id="c512" width="512" height="512" style="display:none"></canvas>
+<div id="preview" style="display:flex;gap:20px;justify-content:center;margin:20px 0"></div>
+<br>
+<button onclick="generate()" style="background:#ff8906;border:none;padding:14px 28px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;color:#000">🖼️ Jana & Download Icon</button>
+
+<script>
+function drawIcon(canvas) {
+  const s = canvas.width;
+  const ctx = canvas.getContext('2d');
+  
+  // Rounded rect clip
+  const r = s * 0.22;
+  ctx.beginPath();
+  ctx.moveTo(r, 0);
+  ctx.lineTo(s-r, 0);
+  ctx.quadraticCurveTo(s, 0, s, r);
+  ctx.lineTo(s, s-r);
+  ctx.quadraticCurveTo(s, s, s-r, s);
+  ctx.lineTo(r, s);
+  ctx.quadraticCurveTo(0, s, 0, s-r);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.closePath();
+  ctx.clip();
+
+  // Gradient background
+  const grad = ctx.createLinearGradient(0, 0, s, s);
+  grad.addColorStop(0, '#ffb347');
+  grad.addColorStop(1, '#e05c00');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, s, s);
+
+  // Subtle inner glow
+  const glow = ctx.createRadialGradient(s*0.3, s*0.3, 0, s*0.3, s*0.3, s*0.7);
+  glow.addColorStop(0, 'rgba(255,255,255,0.15)');
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, s, s);
+
+  // Star
+  ctx.font = `${s * 0.52}px serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('⭐', s/2, s * 0.42);
+
+  // Label bg
+  const lx = s*0.1, ly = s*0.73, lw = s*0.8, lh = s*0.18;
+  ctx.fillStyle = 'rgba(0,0,0,0.28)';
+  const lr = s * 0.05;
+  ctx.beginPath();
+  ctx.roundRect(lx, ly, lw, lh, lr);
+  ctx.fill();
+
+  // Label text
+  ctx.fillStyle = 'white';
+  ctx.font = `900 ${s*0.1}px 'Arial Rounded MT Bold', 'Nunito', sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('KID REWARD', s/2, ly + lh/2);
+}
+
+function generate() {
+  const preview = document.getElementById('preview');
+  preview.innerHTML = '';
+
+  [192, 512].forEach(size => {
+    const c = document.getElementById('c'+size);
+    drawIcon(c);
+
+    // Show preview
+    const img = document.createElement('img');
+    img.src = c.toDataURL();
+    img.style.cssText = `width:${Math.min(size,96)}px;height:${Math.min(size,96)}px;border-radius:22%;border:2px solid #ff8906`;
+    preview.appendChild(img);
+
+    // Download
+    const a = document.createElement('a');
+    a.download = `icon-${size}.png`;
+    a.href = c.toDataURL('image/png');
+    a.click();
+  });
+
+  document.getElementById('preview').insertAdjacentHTML('afterend',
+    '<p style="color:#2ec4b6;font-weight:700;margin-top:16px">✅ Dua fail icon telah didownload! Letakkan dalam folder yang sama dengan index.html</p>'
+  );
+}
+</script>
+</body>
+</html>

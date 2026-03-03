@@ -1,0 +1,24 @@
+{
+  "name": "Kid Reward Pro",
+  "short_name": "Kid Reward Pro",
+  "description": "Sistem token ganjaran untuk anak-anak",
+  "start_url": "./tokenkid.html",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f0e17",
+  "theme_color": "#ff8906",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
